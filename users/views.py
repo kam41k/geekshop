@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth, messages
 from django.urls import reverse
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
+from basket.models import Basket
 
 # Create your views here.
 def login(request):
@@ -47,5 +48,6 @@ def profile(request):
     context = {
         'title': 'GeekShop - Профиль',
         'form': form,
+        'basket': Basket.objects.filter(user=user),
     }
     return render(request, 'users/profile.html', context)
