@@ -10,21 +10,22 @@ from django.template.loader import render_to_string
 # Create your views here.
 @login_required
 def basket_add(request, product_id):
-    product = Product.objects.get(id=product_id)
-    basket = Basket.objects.filter(user=request.user, product=product)
-    if product.quantity > 0:
-        if not basket:
-            Basket.objects.create(user=request.user, product=product, quantity=1)
-            return HttpResponseRedirect(request.META['HTTP_REFERER'])
-        else:
-            basket = basket.first()
-            if product.quantity > basket.quantity:
-                basket.quantity += 1
-                basket.save()
+    if request.is_ajax():
+        product = Product.objects.get(id=product_id)
+        basket = Basket.objects.filter(user=request.user, product=product)
+        if product.quantity > 0:
+            if not basket:
+                Basket.objects.create(user=request.user, product=product, quantity=1)
                 return HttpResponseRedirect(request.META['HTTP_REFERER'])
             else:
-                messages.warning(request, 'Товар закончился.')
-                return HttpResponseRedirect(request.META['HTTP_REFERER'])
+                basket = basket.first()
+                if product.quantity > basket.quantity:
+                    basket.quantity += 1
+                    basket.save()
+                    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+                else:
+                    messages.warning(request, 'Товар закончился.')
+                    return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 @login_required
