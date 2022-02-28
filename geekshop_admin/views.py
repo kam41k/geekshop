@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponseRedirect
+from django.contrib.auth.decorators import user_passes_test
 from django.urls import reverse
 from django.contrib import messages
 from users.models import User
@@ -6,11 +7,13 @@ from geekshop_admin.forms import GeekshopAdminCreationForm, GeekshopAdminProfile
 
 
 # Create your views here.
+@user_passes_test(lambda user: user.is_staff)
 def admin(request):
     context = {'title': 'GeekShop - Admin'}
     return render(request, 'geekshop_admin/admin.html', context)
 
 
+@user_passes_test(lambda user: user.is_staff)
 def admin_users_create(request):
     if request.method == 'POST':
         form = GeekshopAdminCreationForm(data=request.POST, files=request.FILES)
@@ -24,11 +27,13 @@ def admin_users_create(request):
     return render(request, 'geekshop_admin/admin-users-create.html', context)
 
 
+@user_passes_test(lambda user: user.is_staff)
 def admin_users_read(request):
     context = {'title': 'GeekShop - Admin', 'Users': User.objects.all()}
     return render(request, 'geekshop_admin/admin-users-read.html', context)
 
 
+@user_passes_test(lambda user: user.is_staff)
 def admin_users_update(request, user_id):
     user = User.objects.get(id=user_id)
     if request.method == 'POST':
@@ -42,6 +47,7 @@ def admin_users_update(request, user_id):
     return render(request, 'geekshop_admin/admin-users-update-delete.html', context)
 
 
+@user_passes_test(lambda user: user.is_staff)
 def admin_users_delete(request, user_id):
     user = User.objects.get(id=user_id)
     user.self_delete()
