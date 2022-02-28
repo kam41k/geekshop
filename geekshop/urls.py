@@ -25,6 +25,7 @@ urlpatterns = [
     path('products/', include('products.urls', namespace='products')),
     path('users/', include('users.urls', namespace='users')),
     path('basket/', include('basket.urls', namespace='basket')),
+    path('geekshop-admin/', include('geekshop_admin.urls', namespace='geekshop-admin')),
 ]
 
 if settings.DEBUG:
