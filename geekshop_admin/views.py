@@ -3,9 +3,9 @@ from django.contrib.auth.decorators import user_passes_test
 from django.urls import reverse
 from django.contrib import messages
 from users.models import User
-from products.models import ProductCategory
+from products.models import ProductCategory, Product
 from geekshop_admin.forms import GeekshopAdminUserCreationForm, GeekshopAdminUserProfileForm, \
-    GeekshopAdminProductCategoryForm
+    GeekshopAdminProductCategoryForm, GeekshopAdminProductForm
 
 
 # Create your views here.
@@ -95,3 +95,44 @@ def admin_product_category_delete(request, category_id):
     category = ProductCategory.objects.get(id=category_id)
     category.delete()
     return HttpResponseRedirect(reverse('geekshop-admin:admin-product-category-read'))
+
+
+@user_passes_test(lambda user: user.is_staff)
+def admin_product_create(request):
+    if request.method == 'POST':
+        form = GeekshopAdminProductForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Пользователь успешно создан.')
+            return HttpResponseRedirect(reverse('geekshop-admin:admin-product-read'))
+    else:
+        form = GeekshopAdminProductForm()
+    context = {'title': 'GeekShop - Admin', 'form': form}
+    return render(request, 'geekshop_admin/admin-product-create.html', context)
+
+
+@user_passes_test(lambda user: user.is_staff)
+def admin_product_read(request):
+    context = {'title': 'GeekShop - Admin', 'Products': Product.objects.all()}
+    return render(request, 'geekshop_admin/admin-product-read.html', context)
+
+
+@user_passes_test(lambda user: user.is_staff)
+def admin_product_update(request, product_id):
+    product = Product.objects.get(id=product_id)
+    if request.method == 'POST':
+        form = GeekshopAdminProductForm(instance=product, files=request.FILES, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('geekshop-admin:admin-product-read'))
+    else:
+        form = GeekshopAdminProductForm(instance=product)
+    context = {'title': 'GeekShop - Admin', 'Product': product, 'form': form}
+    return render(request, 'geekshop_admin/admin-product-update-delete.html', context)
+
+
+@user_passes_test(lambda user: user.is_staff)
+def admin_product_delete(request, product_id):
+    product = Product.objects.get(id=product_id)
+    product.delete()
+    return HttpResponseRedirect(reverse('geekshop_admin:admin-product-read'))
