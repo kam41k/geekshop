@@ -1,7 +1,9 @@
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib.auth.decorators import user_passes_test
+from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django.contrib import messages
+from django.views.generic.list import ListView
 from users.models import User
 from products.models import ProductCategory, Product
 from geekshop_admin.forms import GeekshopAdminUserCreationForm, GeekshopAdminUserProfileForm, \
@@ -13,6 +15,24 @@ from geekshop_admin.forms import GeekshopAdminUserCreationForm, GeekshopAdminUse
 def admin(request):
     context = {'title': 'GeekShop - Admin'}
     return render(request, 'geekshop_admin/admin.html', context)
+
+
+class CommonMixin():
+    title = 'GeekShop - Админка'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(CommonMixin, self).get_context_data(object_list=None, **kwargs)
+        context['title'] = self.title
+        return context
+
+
+class AdminUsersListView(CommonMixin, ListView):
+    model = User
+    template_name = 'geekshop_admin/admin-users-read.html'
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(AdminUsersListView, self).dispatch(request, *args, **kwargs)
 
 
 @user_passes_test(lambda user: user.is_staff)
@@ -29,15 +49,15 @@ def admin_users_create(request):
     return render(request, 'geekshop_admin/admin-users-create.html', context)
 
 
-@user_passes_test(lambda user: user.is_staff)
-def admin_users_read(request):
-    context = {'title': 'GeekShop - Admin', 'Users': User.objects.all()}
-    return render(request, 'geekshop_admin/admin-users-read.html', context)
+# @user_passes_test(lambda user: user.is_staff)
+# def admin_users_read(request):
+#     context = {'title': 'GeekShop - Admin', 'Users': User.objects.all()}
+#     return render(request, 'geekshop_admin/admin-users-read.html', context)
 
 
 @user_passes_test(lambda user: user.is_staff)
-def admin_users_update(request, user_id):
-    user = User.objects.get(id=user_id)
+def admin_users_update(request, pk):
+    user = User.objects.get(id=pk)
     if request.method == 'POST':
         form = GeekshopAdminUserProfileForm(instance=user, files=request.FILES, data=request.POST)
         if form.is_valid():
@@ -50,10 +70,10 @@ def admin_users_update(request, user_id):
 
 
 @user_passes_test(lambda user: user.is_staff)
-def admin_users_delete(request, user_id):
-    user = User.objects.get(id=user_id)
+def admin_users_delete(request, pk):
+    user = User.objects.get(id=pk)
     user.self_delete()
-    return HttpResponseRedirect(reverse('geekshop_admin:admin-users-read'))
+    return HttpResponseRedirect(reverse('geekshop-admin:admin-users-read'))
 
 
 @user_passes_test(lambda user: user.is_staff)
@@ -135,4 +155,4 @@ def admin_product_update(request, product_id):
 def admin_product_delete(request, product_id):
     product = Product.objects.get(id=product_id)
     product.delete()
-    return HttpResponseRedirect(reverse('geekshop_admin:admin-product-read'))
+    return HttpResponseRedirect(reverse('geekshop-admin:admin-product-read'))
