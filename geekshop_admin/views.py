@@ -117,42 +117,43 @@ class AdminProductCategoryDeleteView(DeleteView):
         return super(AdminProductCategoryDeleteView, self).dispatch(request, *args, **kwargs)
 
 
-@user_passes_test(lambda user: user.is_staff)
-def admin_product_create(request):
-    if request.method == 'POST':
-        form = GeekshopAdminProductForm(data=request.POST, files=request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Пользователь успешно создан.')
-            return HttpResponseRedirect(reverse('geekshop-admin:admin-product-read'))
-    else:
-        form = GeekshopAdminProductForm()
-    context = {'title': 'GeekShop - Admin', 'form': form}
-    return render(request, 'geekshop_admin/admin-product-create.html', context)
+class AdminProductsListView(CommonMixin, ListView):
+    model = Product
+    template_name = 'geekshop_admin/admin-product-read.html'
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(AdminProductsListView, self).dispatch(request, *args, **kwargs)
 
 
-@user_passes_test(lambda user: user.is_staff)
-def admin_product_read(request):
-    context = {'title': 'GeekShop - Admin', 'Products': Product.objects.all()}
-    return render(request, 'geekshop_admin/admin-product-read.html', context)
+class AdminProductCreateView(CommonMixin, CreateView):
+    model = Product
+    form_class = GeekshopAdminProductForm
+    template_name = 'geekshop_admin/admin-product-create.html'
+    success_url = reverse_lazy('geekshop-admin:admin-product-read')
+    success_message = 'Продукт успешно создан.'
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(AdminProductCreateView, self).dispatch(request, *args, **kwargs)
 
 
-@user_passes_test(lambda user: user.is_staff)
-def admin_product_update(request, product_id):
-    product = Product.objects.get(id=product_id)
-    if request.method == 'POST':
-        form = GeekshopAdminProductForm(instance=product, files=request.FILES, data=request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('geekshop-admin:admin-product-read'))
-    else:
-        form = GeekshopAdminProductForm(instance=product)
-    context = {'title': 'GeekShop - Admin', 'Product': product, 'form': form}
-    return render(request, 'geekshop_admin/admin-product-update-delete.html', context)
+class AdminProductUpdateView(CommonMixin, UpdateView):
+    model = Product
+    form_class = GeekshopAdminProductForm
+    template_name = 'geekshop_admin/admin-product-update-delete.html'
+    success_url = reverse_lazy('geekshop-admin:admin-product-read')
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(AdminProductUpdateView, self).dispatch(request, *args, **kwargs)
 
 
-@user_passes_test(lambda user: user.is_staff)
-def admin_product_delete(request, product_id):
-    product = Product.objects.get(id=product_id)
-    product.delete()
-    return HttpResponseRedirect(reverse('geekshop-admin:admin-product-read'))
+class AdminProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'geekshop_admin/admin-product-update-delete.html'
+    success_url = reverse_lazy('geekshop-admin:admin-product-read')
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(AdminProductDeleteView, self).dispatch(request, *args, **kwargs)
