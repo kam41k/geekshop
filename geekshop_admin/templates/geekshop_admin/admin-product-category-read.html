@@ -33,7 +33,7 @@
                             </tr>
                             </tfoot>
                             <tbody>
-                            {% for ProductCategory in ProductCategories %}
+                            {% for ProductCategory in object_list %}
                                 <tr>
                                     <td>
                                         <a href="{% url 'geekshop-admin:admin-product-category-update' ProductCategory.id %}"
