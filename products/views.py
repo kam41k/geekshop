@@ -8,5 +8,6 @@ def index(request):
     return render(request, 'products/index.html', context)
 
 def products(request):
-    context = {'title': 'geekShop - Каталог', 'categories': ProductCategory.objects.all(), 'products': Product.objects.all()}
+    context = {'title': 'geekShop - Каталог', 'categories': ProductCategory.objects.all(),
+               'products': Product.objects.all()}
     return render(request, 'products/products.html', context)

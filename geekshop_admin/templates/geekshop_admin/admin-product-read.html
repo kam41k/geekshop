@@ -1,0 +1,65 @@
+{% extends 'geekshop_admin/base.html' %}
+
+{% block content %}
+    <main>
+        <div class="container-fluid">
+            {% if messages %}
+                <div class="alert alert-dismissible fade show alert-success" role="alert"
+                     style="margin-top: 50px;">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <h1 class="mt-4">Продукты</h1>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table mr-1"></i>
+                    Продукты
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Цена</th>
+                                <th>Количество</th>
+                                <th>Категория</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Цена</th>
+                                <th>Количество</th>
+                                <th>Категория</th>
+                            </tr>
+                            </tfoot>
+                            <tbody>
+                            {% for Product in Products %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'geekshop-admin:admin-product-update' Product.id %}"
+                                           style="color: dodgerblue">{{ Product.name }}</a></td>
+                                    <td>{{ Product.description }}</td>
+                                    <td>{{ Product.price }}</td>
+                                    <td>{{ Product.quantity }}</td>
+                                    <td>{{ Product.category }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'geekshop-admin:admin-product-create' %}">
+                        <button class="btn btn-success">Создать продукт</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
