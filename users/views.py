@@ -38,13 +38,10 @@ def registration(request):
             else:
                 messages.error(request, 'Ошибка отправки сообщения.')
                 return HttpResponseRedirect(reverse('users:login'))
-        else:
-            messages.error(request, 'Ошибка отправки сообщения.')
-            return HttpResponseRedirect(reverse('users:login'))
     else:
         form = UserRegistrationForm()
-        context = {'title': 'GeekShop - Регистрация', 'form': form}
-        return render(request, 'users/register.html', context)
+    context = {'title': 'GeekShop - Регистрация', 'form': form}
+    return render(request, 'users/register.html', context)
 
 
 def logout(request):
