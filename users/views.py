@@ -38,6 +38,9 @@ def registration(request):
             else:
                 messages.error(request, 'Ошибка отправки сообщения.')
                 return HttpResponseRedirect(reverse('users:login'))
+        else:
+            messages.error(request, 'Ошибка отправки сообщения.')
+            return HttpResponseRedirect(reverse('users:login'))
     else:
         form = UserRegistrationForm()
         context = {'title': 'GeekShop - Регистрация', 'form': form}
@@ -85,12 +88,12 @@ def verify(request, email, activation_key):
             user.activation_key = None
             user.activation_key_expires = None
             user.save()
-            auth.login(request, user)
+            auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, f'Поздравляем! Пользователь {user.username} подтвержден.')
-            return HttpResponseRedirect(reverse('users:login'))
+            return HttpResponseRedirect(reverse('index'))
         else:
             messages.error(request, f'Ошибка! Пользователь {user.username} не подтвержден.')
-            return HttpResponseRedirect(reverse('users:login'))
+            return HttpResponseRedirect(reverse('index'))
     except Exception as e:
         print(f'error activation user : {e.args}')
         return HttpResponseRedirect(reverse('index'))
