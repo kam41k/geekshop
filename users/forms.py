@@ -1,7 +1,8 @@
+import random, hashlib
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
 
-from users.models import User
+from users.models import User, UserProfile
 
 
 class UserLoginForm(AuthenticationForm):
@@ -33,7 +34,16 @@ class UserRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'email', 'password1', 'password2')
+        fields = ('first_name', 'last_name', 'city', 'username', 'email', 'password1', 'password2')
+
+    def save(self):
+        user = super(UserRegistrationForm, self).save()
+        user.is_active = False
+        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:6]
+        user.activation_key = hashlib.sha1((user.email +
+                                            salt).encode('utf8')).hexdigest()
+        user.save()
+        return user
 
     def clean_city(self):
         data = self.cleaned_data['city']
@@ -59,3 +69,9 @@ class UserProfileForm(UserChangeForm):
         if data != 'Москва':
             raise forms.ValidationError('Наш магазин находится в Москве.')
         return data
+
+
+class UserProfileEditForm(UserChangeForm):
+    class Meta:
+        model = UserProfile
+        fields = ('about', 'gender')
