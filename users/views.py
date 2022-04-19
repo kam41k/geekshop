@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from users.models import User
 from django.urls import reverse
-from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
+from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm, UserProfileEditForm
 from basket.models import Basket
 from django.contrib.auth.decorators import login_required
 
@@ -54,15 +54,19 @@ def profile(request):
     user = request.user
     if request.method == 'POST':
         form = UserProfileForm(instance=user, files=request.FILES, data=request.POST)
-        if form.is_valid():
+        profile_form = UserProfileEditForm(instance=user.userprofile)
+        if form.is_valid() and profile_form.is_valid():
             form.save()
+            profile_form.save()
             messages.success(request, 'Поздравляем! Изменения прошли успешно.')
             return HttpResponseRedirect(reverse('users:profile'))
     else:
         form = UserProfileForm(instance=user)
+        profile_form = UserProfileEditForm(instance=user.userprofile)
     context = {
         'title': 'GeekShop - Профиль',
         'form': form,
+        'profile_form': profile_form,
         'basket': Basket.objects.filter(user=user),
     }
     return render(request, 'users/profile.html', context)
